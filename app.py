@@ -16,6 +16,8 @@ firebase = pyrebase.initialize_app(firebaseConfig)
 auth = firebase.auth()
 
 def main(page: ft.Page):
+    page.window_width = 500
+    page.window_height = 800
     
     # Função para alternar a visibilidade da senha
     def toggle_password_visibility(e):        
@@ -30,6 +32,8 @@ def main(page: ft.Page):
             border_radius=10,
             max_length=30,
             password=True,  # Esconder a senha por padrão
+            prefix_icon=ft.icons.LOCK,
+
             )
     icon_eye = ft.IconButton(
             icon=ft.icons.VISIBILITY_OFF,  # Começa com o ícone de olho fechado
@@ -44,7 +48,6 @@ def main(page: ft.Page):
         def btnEntrar(e):
             try:
                 auth.sign_in_with_email_and_password(user_email.value, txt_senha.value)
-                #page.go("/tela_usuario")
                 page.snack_bar = ft.SnackBar(
                     content= ft.Text(value='Você entrou'),
                     bgcolor = 'green',
@@ -54,6 +57,7 @@ def main(page: ft.Page):
                 page.snack_bar.open = True
                 user_email.value=None
                 txt_senha.value=None
+                page.go("/tela_usuario")
                 page.update()
 
             except:
@@ -68,6 +72,33 @@ def main(page: ft.Page):
                 txt_senha.value=None
                 page.update()
         
+        def btnCdastrar(e):
+            try:
+                auth.create_user_with_email_and_password(usuario_email_cadastro.value, txt_senha.value)
+                page.snack_bar = ft.SnackBar(
+                    content= ft.Text(value='Cadastrado com sucesso'),
+                    bgcolor = 'blue',
+                    action='Ok',
+                    duration = 2000
+                )
+                page.snack_bar.open = True
+                usuario_email_cadastro.value=None
+                txt_senha.value=None
+                page.go("/tela_usuario")
+                page.update()
+
+            except:
+                page.snack_bar = ft.SnackBar(
+                    content= ft.Text(value='Email ou senha inválidos'),
+                    bgcolor = 'red',
+                    action='Reescreva os campos',
+                    duration = 2000
+                )
+                page.snack_bar.open = True
+                user_email.value=None
+                txt_senha.value=None
+                page.update()
+            
         
         
         
@@ -77,10 +108,10 @@ def main(page: ft.Page):
             page.title = "PrepWise"
 
             # Coloca o campo de senha e o botão de olho na mesma linha
-            #senha_row = ft.Row(
-            #    controls=[txt_senha, icon_eye],  # Coloca o campo de senha e o ícone na mesma linha   
-            #    alignment=ft.MainAxisAlignment.CENTER
-            #)
+            senha_row = ft.Row(
+                controls=[txt_senha, icon_eye],  # Coloca o campo de senha e o ícone na mesma linha   
+                alignment=ft.MainAxisAlignment.CENTER,
+            )
             
             user_email = ft.TextField(
                 label="Informe seu email", 
@@ -89,8 +120,9 @@ def main(page: ft.Page):
                 width=310,
                 border_radius=10,
                 color="Blue",
+                prefix_icon=ft.icons.EMAIL
                 )
-            entrar = ft.ElevatedButton("Entrar", on_click=btnEntrar)
+            entrar = ft.ElevatedButton("Entrar", on_click=btnEntrar, width=120)
 
             # Adiciona a view de login à página
             page.views.append(
@@ -106,13 +138,13 @@ def main(page: ft.Page):
                         
                         
                         # Adiciona a linha com o campo de senha e o ícone
-                        txt_senha,
+                        senha_row,
 
                         # Botão de entrar redirecionando para /tela_inicial
                         #ft.ElevatedButton("Entrar", on_click=lambda _: page.go("/tela_inicial")),
                         entrar,
                         
-                        ft.ElevatedButton("Não possui cadastro?", on_click=lambda _: page.go("/tela_cadastro")),
+                        ft.ElevatedButton("Cadastrar-se", on_click=lambda _: page.go("/tela_cadastro"), width=120, height=35),
                     ],
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     vertical_alignment=ft.MainAxisAlignment.CENTER,
@@ -132,12 +164,12 @@ def main(page: ft.Page):
                             on_click=lambda _: page.go("/login"),
                         ),
                     ],
-                    #horizontal_alignment=ft.CrossAxisAlignment.CENTER,
-                    #vertical_alignment=ft.MainAxisAlignment.CENTER,
+                    horizontal_alignment=ft.CrossAxisAlignment.CENTER,
+                    vertical_alignment=ft.MainAxisAlignment.CENTER,
                 )
             )
         elif page.route == "/tela_usuario":
-            # Tela inicial
+            # Tela inicial do usuário
             page.views.append(
                 ft.View(
                     "/tela_usuario",
@@ -167,6 +199,7 @@ def main(page: ft.Page):
                 width=310,
                 border_radius=10,
                 color="Blue",
+                prefix_icon=ft.icons.PERSON,
                 )
             usuario_email_cadastro = ft.TextField(
                 label="Informe seu email", 
@@ -175,7 +208,10 @@ def main(page: ft.Page):
                 width=310,
                 border_radius=10,
                 color="Blue",
-                        )
+                prefix_icon=ft.icons.EMAIL,
+                )
+            
+            cadastrar = ft.ElevatedButton("Cadastrar", on_click=btnCdastrar)
             #tela de cadastro
             page.views.append(
                 ft.View(
@@ -192,7 +228,8 @@ def main(page: ft.Page):
                         senha_row,
 
                         # Botão de entrar redirecionando para /tela_inicial
-                        ft.ElevatedButton("Cadastrar", on_click=lambda _: page.go("/tela_inicial")),
+                        #ft.ElevatedButton("Cadastrar", on_click=lambda _: page.go("/tela_inicial")),
+                        cadastrar,
                     ],
                     horizontal_alignment=ft.CrossAxisAlignment.CENTER,
                     vertical_alignment=ft.MainAxisAlignment.CENTER,
@@ -204,7 +241,9 @@ def main(page: ft.Page):
     
     page.on_route_change = on_route_change
 
+
+
     # Defina a rota inicial (primeira tela)
-    page.go("/login")
+    page.go("/tela_inicial")
 
 ft.app(target=main)
