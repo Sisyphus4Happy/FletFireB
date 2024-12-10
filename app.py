@@ -17,7 +17,7 @@ auth = firebase.auth()
 
 def main(page: ft.Page):
     page.window_width = 500
-    page.window_height = 800
+    page.window_height = 700
     
     # Função para alternar a visibilidade da senha
     def toggle_password_visibility(e):        
@@ -95,7 +95,7 @@ def main(page: ft.Page):
                     duration = 2000
                 )
                 page.snack_bar.open = True
-                user_email.value=None
+                usuario_email_cadastro.value=None
                 txt_senha.value=None
                 page.update()
             
